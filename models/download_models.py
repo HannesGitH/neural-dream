@@ -5,13 +5,10 @@ from sys import version_info
 from collections import OrderedDict
 from torch.utils.model_zoo import load_url
 
-if version_info[0] < 3:
-    import urllib
-else:
-    import urllib.request
+import requests
 
 
-options_list = ['all', 'caffe-vgg16', 'caffe-vgg19', 'caffe-nin', 'caffe-googlenet-places205', 'caffe-googlenet-places365', 'caffe-googlenet-bvlc', 'caffe-googlenet-cars', 'caffe-googlenet-sos', \
+options_list = ['all', 'caffe-vgg16', 'caffe-vgg19', 'caffe-nin', 'caffe-googlenet-places205', 'caffe-googlenet-places365', 'caffe-googlenet-bvlc', 'caffe-googlenet-cars', 'caffe-googlenet-sos',
                 'caffe-resnet-opennsfw', 'pytorch-vgg16', 'pytorch-vgg19', 'pytorch-googlenet', 'pytorch-inceptionv3', 'tensorflow-inception5h', 'keras-inceptionv3', 'all-caffe', 'all-caffe-googlenet']
 
 
@@ -29,17 +26,23 @@ def main():
     if 'caffe-vgg19' in params.models:
         # Download the VGG-19 ILSVRC model and fix the layer names
         print("Downloading the VGG-19 ILSVRC model")
-        sd = load_url("https://web.eecs.umich.edu/~justincj/models/vgg19-d01eb7cb.pth")
-        map = {'classifier.1.weight':u'classifier.0.weight', 'classifier.1.bias':u'classifier.0.bias', 'classifier.4.weight':u'classifier.3.weight', 'classifier.4.bias':u'classifier.3.bias'}
-        sd = OrderedDict([(map[k] if k in map else k,v) for k,v in sd.items()])
+        sd = load_url(
+            "https://web.eecs.umich.edu/~justincj/models/vgg19-d01eb7cb.pth")
+        map = {'classifier.1.weight': u'classifier.0.weight', 'classifier.1.bias': u'classifier.0.bias',
+               'classifier.4.weight': u'classifier.3.weight', 'classifier.4.bias': u'classifier.3.bias'}
+        sd = OrderedDict([(map[k] if k in map else k, v)
+                         for k, v in sd.items()])
         torch.save(sd, path.join(params.download_path, "vgg19-d01eb7cb.pth"))
 
     if 'caffe-vgg16' in params.models:
         # Download the VGG-16 ILSVRC model and fix the layer names
         print("Downloading the VGG-16 ILSVRC model")
-        sd = load_url("https://web.eecs.umich.edu/~justincj/models/vgg16-00b39a1b.pth")
-        map = {'classifier.1.weight':u'classifier.0.weight', 'classifier.1.bias':u'classifier.0.bias', 'classifier.4.weight':u'classifier.3.weight', 'classifier.4.bias':u'classifier.3.bias'}
-        sd = OrderedDict([(map[k] if k in map else k,v) for k,v in sd.items()])
+        sd = load_url(
+            "https://web.eecs.umich.edu/~justincj/models/vgg16-00b39a1b.pth")
+        map = {'classifier.1.weight': u'classifier.0.weight', 'classifier.1.bias': u'classifier.0.bias',
+               'classifier.4.weight': u'classifier.3.weight', 'classifier.4.bias': u'classifier.3.bias'}
+        sd = OrderedDict([(map[k] if k in map else k, v)
+                         for k, v in sd.items()])
         torch.save(sd, path.join(params.download_path, "vgg16-00b39a1b.pth"))
 
     if 'caffe-nin' in params.models:
@@ -138,28 +141,28 @@ def main():
 
 def params_list():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-models", help="Models to download", default='caffe-googlenet-bvlc,caffe-nin', action=MultipleChoice)
-    parser.add_argument("-download_path", help="Download location for models", default='models')
+    parser.add_argument("-models", help="Models to download",
+                        default='caffe-googlenet-bvlc,caffe-nin', action=MultipleChoice)
+    parser.add_argument(
+        "-download_path", help="Download location for models", default='models')
     params = parser.parse_args()
     return params
 
 
 def download_file(fileurl, name, download_path):
-    if version_info[0] < 3:
-        urllib.URLopener().retrieve(fileurl, path.join(download_path, name))
-    else:
-        urllib.request.urlretrieve(fileurl, path.join(download_path, name))
+    r = requests.get(fileurl, allow_redirects=True)
+    open(path.join(download_path,name), 'wb').write(r.content)
 
 
 class MultipleChoice(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         self.options = options_list
-        e = [o.lower() for o in values.split(',') if o.lower() not in self.options]
+        e = [o.lower() for o in values.split(
+            ',') if o.lower() not in self.options]
         if len(e) > 0:
             raise argparse.ArgumentError(self, 'invalid choices: ' + ','.join([str(v) for v in e]) +
-                                         ' (choose from ' + ','.join([ "'"+str(v)+"'" for v in self.options])+')')
+                                         ' (choose from ' + ','.join(["'"+str(v)+"'" for v in self.options])+')')
         setattr(namespace, self.dest, values)
-
 
 
 if __name__ == "__main__":
