@@ -123,6 +123,9 @@ parser.add_argument("-print_channels", action='store_true')
 
 # Experimental params
 parser.add_argument("-norm_percent", type=float, default=0)
+
+parser.add_argument("-is_onnx", action='store_true');
+
 parser.add_argument("-abs_percent", type=float, default=0)
 parser.add_argument("-mean_percent", type=float, default=0)
 parser.add_argument("-percent_mode", choices=['slow', 'fast'], default='fast')
@@ -131,12 +134,21 @@ params = parser.parse_args()
 
 Image.MAX_IMAGE_PIXELS = 1000000000  # Support gigapixel images
 
+def loadOnnx(model_file, *args, **kwargs):
+    pass
+    # import onnx
+    # from onnx2pytorch import ConvertModel
+    # model = onnx.load('./'+model_file)
+    # model = ConvertModel(model)
+    # model = model.get_model()
+    # # model = torch.load('./'+model_file, map_location=torch.device('cpu'))
+    # return model, model.state_dict()
 
 def main():
     dtype, multidevice, backward_device = setup_gpu()
 
     cnn, layerList = loadCaffemodel(
-        params.model_file, params.pooling, params.gpu, params.disable_check, True)
+        params.model_file, params.pooling, params.gpu, params.disable_check, True) if not params.is_onnx else loadOnnx(params.model_file, params.pooling, params.gpu, params.disable_check, True)
     has_inception = cnn.has_inception
     if params.print_layers:
         print_layers(layerList, params.model_file, has_inception)

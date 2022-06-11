@@ -1,0 +1,18 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": ["-gpu=c", "-num_iterations=2", "-content_image=examples/inputs/shipwreck.jpg", "-image_size=1024", "-cudnn_autotune", "-dream_weight=200000", "-octave_iter=70", "-dream_layers=inception_5b_output,inception_5b_pool_proj,inception_5a_pool", "-print_channels", "-channel_mode=strong"],
+            // // "args": ["-model_file=models/n.pth", "-is_onnx"],
+            "justMyCode": true
+        }
+    ]
+}
