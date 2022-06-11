@@ -22,7 +22,7 @@ parser.add_argument("-content_image", help="Content target image",
 parser.add_argument(
     "-image_size", help="Maximum height / width of generated image", type=int, default=512)
 parser.add_argument(
-    "-gpu", help="Zero-indexed ID of the GPU to use; for CPU mode set -gpu = c", default=0)
+    "-gpu", help="Zero-indexed ID of the GPU to use; for CPU mode set -gpu = c", default='c')
 
 # Optimization options
 parser.add_argument("-dream_weight", type=float, default=1000)
@@ -148,8 +148,9 @@ def main():
     if params.model_mean != 'auto':
         input_mean = [float(m) for m in input_mean.split(',')]
 
-    content_image = preprocess(
-        params.content_image, params.image_size, params.model_type, input_mean).type(dtype)
+    _content_image = preprocess(
+        params.content_image, params.image_size, params.model_type, input_mean)
+    content_image = _content_image.type(dtype)
     clamp_val = 256 if params.model_type == 'caffe' else 1
     output_start_num = params.output_start_num - \
         1 if params.output_start_num > 0 else 0
