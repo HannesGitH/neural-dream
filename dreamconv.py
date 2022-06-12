@@ -10,7 +10,7 @@ input = Input(shape=(3, 640, 480))
 x = input
 x = Permute((2,3,1))(x)
 x = orgmodel(x)
-x = Reshape((3, 672, 627))(x)
+# x = Reshape((3, 672, 627))(x)
 preds = x
 
 model = tf.keras.Model(input,preds)
